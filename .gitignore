@@ -1,0 +1,10 @@
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.log
+
+# Raw/uncompressed demo photos.
+# Kept OUT of git history until optimized: they get compressed at the QA
+# phase, then the production-ready versions get committed before deploy.
+# (Git history is permanent; don't version large binaries you'll replace.)
+assets/images/
