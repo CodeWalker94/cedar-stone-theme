@@ -6,7 +6,7 @@
  */
 ?>
 <section class="hero">
-  <div class="container hero__content">
+  <div class="container hero__content reveal">
     <h1>Your Dream Outdoor Projects <span class="highlight highlight--gold">Reimagined</span></h1>
     <p class="hero__tagline">Family-owned landscaping in Cedar Rapids since 2012</p>
     <a class="btn btn--accent" href="/contact/">Get a Free Quote</a>

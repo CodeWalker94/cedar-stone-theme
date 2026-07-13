@@ -9,7 +9,7 @@ $title = $args['title'] ?? 'Project Title';
 $img   = $args['img'] ?? '';
 ?>
 <a href="/our-work/" class="gallery-card">
-  <div class="gallery-card__media">
+  <div class="gallery-card__media reveal">
     <?php if ( $img ) : ?>
       <img
         src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/' . $img ); ?>"

@@ -21,6 +21,7 @@ Version: 1.0
   --color-accent: #C1622F;
   --color-accent-dark: #A34F24;
   --color-border: #E2DED4;
+  --color-tint: #EEF0E9; /* soft green-tinted panel (offset blocks, light bands) */
 
   --radius: 8px;
 
@@ -210,12 +211,12 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
     font-family: var(--font-body);
     font-size: var(--text-base);
     font-weight: 500;
-    color: var(--color-text);
+    color: var(--color-primary);
     transform: none;
     transition: color 0.15s ease;
   }
   .site-header__nav a:hover,
-  .site-header__nav a:focus-visible { color: var(--color-primary); }
+  .site-header__nav a:focus-visible { color: var(--color-accent); }
 }
 
 .site-header__actions {
@@ -231,7 +232,10 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
   color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
+  transition: color 0.15s ease;
 }
+.site-header__phone:hover,
+.site-header__phone:focus-visible { color: var(--color-accent); }
 
 /* ===== Buttons =====
    ONE sweep mechanism on the base class; each variant only sets
@@ -251,7 +255,7 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
 .btn::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -1px; /* overscan 1px so the fill leaves no sub-pixel seam at the edges */
   z-index: -1;
   background: var(--btn-fill, var(--color-primary));
   transform: scaleY(0);
@@ -269,6 +273,15 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
   color: #fff;
   --btn-fill: var(--color-primary);
 }
+
+.btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+  --btn-fill: var(--color-primary);
+}
+.btn--outline:hover,
+.btn--outline:focus-visible { color: var(--color-bg); }
 
 /* ===== Footer ===== */
 .site-footer {
@@ -578,6 +591,112 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
 .card-service__link:hover,
 .card-service__link:focus-visible { text-decoration: underline; }
 
+/* ===== Services archive: photo hero + wide lead + alternating rows + visit band ===== */
+.svc-hero {
+  color: var(--color-bg);
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+  background-image: linear-gradient(rgba(20, 32, 26, 0.45), rgba(20, 32, 26, 0.6)),
+    url('assets/images/banele-madlala-XKoxWI_gHVs-unsplash.jpg');
+  background-size: cover;
+  background-position: center;
+}
+.svc-hero h1 {
+  font-size: clamp(2.6rem, 6vw + 1rem, var(--text-3xl));
+  font-weight: 600;
+  color: var(--color-bg); /* override the global h1 green: this sits on a dark photo */
+  margin: 0;
+}
+
+/* Wide centered opener (Highlands/Terrascapes intro pattern) */
+.svc-lead { padding-block: var(--space-12) var(--space-10); text-align: center; }
+.svc-lead__inner { max-width: 62rem; margin-inline: auto; }
+.svc-lead h2 {
+  font-size: clamp(2.2rem, 4vw + 1rem, var(--text-3xl));
+  font-weight: 600;
+  margin: 0 auto var(--space-4);
+  max-width: 24ch;
+}
+.svc-lead__body {
+  font-size: var(--text-lg);
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+/* Alternating image/text rows: right pattern for a short service list */
+.svc-rows { display: grid; gap: var(--space-12); padding-bottom: var(--space-12); }
+.svc-row { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: var(--space-8); align-items: center; }
+
+.svc-row__media { position: relative; order: 0; }
+.svc-row__content { order: 1; }
+/* Flip every other row so image and text alternate sides */
+.svc-rows .svc-row:nth-child(even) .svc-row__media { order: 1; }
+.svc-rows .svc-row:nth-child(even) .svc-row__content { order: 0; }
+
+.svc-row__photo {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 5 / 4;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(29, 51, 39, 0.16);
+}
+.svc-row__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Offset tint block peeking out behind the photo */
+.svc-row__media::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 55%;
+  height: 70%;
+  bottom: calc(-1 * var(--space-2));
+  left: calc(-1 * var(--space-2));
+  background: var(--color-tint);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+.svc-rows .svc-row:nth-child(even) .svc-row__media::before { left: auto; right: calc(-1 * var(--space-2)); }
+
+.svc-row__title {
+  font-size: clamp(1.8rem, 2.6vw + 1rem, var(--text-2xl));
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+.svc-row__text { color: var(--color-text-muted); }
+.svc-row__text p { margin: 0 0 var(--space-2); }
+.svc-row__actions { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); }
+
+@media (max-width: 820px) {
+  .svc-row { grid-template-columns: 1fr; gap: var(--space-4); }
+  .svc-row__media,
+  .svc-rows .svc-row:nth-child(even) .svc-row__media { order: 0; }
+  .svc-row__content,
+  .svc-rows .svc-row:nth-child(even) .svc-row__content { order: 1; }
+  .svc-row__media::before { display: none; }
+}
+
+/* Closing site-visit band: light + horizontal, deliberately unlike the homepage CTA */
+.visit { background: var(--color-tint); border-block: 1px solid var(--color-border); }
+.visit__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding-block: var(--space-10);
+}
+.visit__text { max-width: 48ch; }
+.visit h2 { font-size: clamp(1.8rem, 2.6vw + 1rem, var(--text-2xl)); font-weight: 600; }
+.visit p { color: var(--color-text-muted); margin-top: var(--space-2); }
+.visit__action { flex: none; display: grid; gap: var(--space-2); justify-items: start; }
+.visit__phone { font-family: var(--font-display); font-size: var(--text-lg); color: var(--color-primary); text-decoration: none; }
+.visit__phone:hover,
+.visit__phone:focus-visible { color: var(--color-accent); }
+@media (max-width: 760px) {
+  .visit__inner { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+}
+
 /* ===== Our Work grid + hover cards ===== */
 .grid-work { display: grid; gap: var(--space-3); }
 @media (min-width: 600px) { .grid-work { grid-template-columns: repeat(2, 1fr); } }
@@ -719,10 +838,52 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
   padding-block: var(--space-8);
 }
 
+/* ===== Scroll-reveal (JS toggles .is-visible via IntersectionObserver) ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ===== Reveal variants (mosaic) =====
+   Both are modifier classes added ALONGSIDE .reveal, not replacements.
+   Declared after .reveal so they win the cascade for the properties
+   they override. The JS never changes, it only ever toggles .is-visible. */
+
+/* Zoom: photos in the mosaic. Overrides just the transform. */
+.reveal--zoom { transform: scale(0.92); }
+.reveal--zoom.is-visible { transform: scale(1); }
+
+/* Curtain: text cards. Fully opaque the whole time, a clip-path mask
+   uncovers it left-to-right instead of fading/sliding. Overrides the
+   whole transition (clip-path only, not opacity/transform). */
+.reveal--curtain {
+  opacity: 1;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.reveal--curtain.is-visible { clip-path: inset(0 0% 0 0); }
+
+/* Alternate direction by position within its mosaic column: every
+   even card in a column opens right-to-left instead of left-to-right. */
+.why__col .reveal--curtain:nth-child(even) { clip-path: inset(0 0 0 100%); }
+.why__col .reveal--curtain:nth-child(even).is-visible { clip-path: inset(0 0 0 0%); }
+
+/* Light stagger by position within a mosaic column, applies to
+   whichever transition is active (zoom's transform or curtain's clip-path). */
+.why__col > *:nth-child(1) { transition-delay: 0s; }
+.why__col > *:nth-child(2) { transition-delay: 0.15s; }
+.why__col > *:nth-child(3) { transition-delay: 0.3s; }
+
 @media (prefers-reduced-motion: reduce) {
   .site-header__nav,
   .site-header__nav a,
   .nav-toggle span,
   .gallery-card__overlay,
   .gallery-card__title { transition: none; }
+  .reveal,
+  .reveal--zoom,
+  .reveal--curtain { transition: none; transform: none; clip-path: none; opacity: 1; }
+  .why__col > * { transition-delay: 0s; }
 }

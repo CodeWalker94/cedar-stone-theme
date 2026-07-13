@@ -8,7 +8,7 @@
            (grid-services + card-service.php) now debuts on archive-service.php in the
            CPT phase instead of the homepage. */ ?>
   <section class="section feature">
-    <div class="container feature__inner">
+    <div class="container feature__inner reveal">
       <div class="feature__media">
         <img
           src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/erikawittlieb-house-2414374_1920.jpg' ); ?>"
@@ -32,7 +32,7 @@
   <?php /* Service-area statement (small-company staple): plainly say WHAT we do
            and WHERE. Doubles as local SEO. Real town names build trust. */ ?>
   <section class="statement band--lawn">
-    <div class="container statement__inner">
+    <div class="container statement__inner reveal">
       <p class="kicker">Serving the Cedar Rapids area</p>
       <p class="statement__lead">Landscape design, patios, planting, and year-round yard care for homeowners across <span class="highlight--gold">Eastern Iowa</span>.</p>
       <p class="statement__areas">Cedar Rapids &middot; Marion &middot; Hiawatha &middot; Robins &middot; Fairfax &middot; Ely &middot; and surrounding towns</p>
@@ -47,7 +47,7 @@
         <h2>Our work</h2>
         <a class="section__link" href="/our-work/">View full portfolio <span aria-hidden="true">&rarr;</span></a>
       </div>
-      <div class="grid-work">
+      <div class="grid-work reveal">
         <?php
         /* TODO(user): replace with a WP_Query loop over the 'project' CPT (6 most recent). */
         get_template_part( 'template-parts/card-project', null, array( 'title' => 'Backyard Paver Patio', 'img' => 'todfrank-backyard-1715876_1920.jpg' ) );
@@ -73,10 +73,14 @@
           <h2>Reasons homeowners keep calling us back.</h2>
         </div>
       </div>
+      <?php /* Each card reveals individually (not the whole mosaic as one block):
+               photos zoom in, text cards curtain-wipe open, direction alternating
+               by position within its column (see .why__col rules in style.css).
+               Timing staggers the same way, by position within the column. */ ?>
       <div class="why__cols">
 
         <div class="why__col">
-          <article class="why-card why-card--photo">
+          <article class="why-card why-card--photo reveal reveal--zoom">
             <div class="why-card__img why-card__img--tall">
               <img
                 src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/michelle-maria-steps-3747068_1920.jpg' ); ?>"
@@ -85,37 +89,37 @@
               >
             </div>
           </article>
-          <article class="why-card">
+          <article class="why-card reveal reveal--curtain">
             <h3>Family-owned &amp; local</h3>
             <p>One crew, one owner, start to finish. You'll know exactly who's in your yard.</p>
           </article>
         </div>
 
         <div class="why__col why__col--offset">
-          <article class="why-card">
+          <article class="why-card reveal reveal--curtain">
             <h3>Licensed &amp; fully insured</h3>
             <p>Coverage on every job, big or small. No risk to your property.</p>
           </article>
-          <article class="why-card">
+          <article class="why-card reveal reveal--curtain">
             <h3>We design and build in-house</h3>
             <p>The people who plan your yard are the ones who build it. No handoffs.</p>
           </article>
-          <article class="why-card">
+          <article class="why-card reveal reveal--curtain">
             <h3>Free, honest estimates</h3>
             <p>Real numbers up front. No pressure and no surprises on the invoice.</p>
           </article>
         </div>
 
         <div class="why__col">
-          <article class="why-card">
+          <article class="why-card reveal reveal--curtain">
             <h3>Year-round care</h3>
             <p>From spring planting to winter prep, we keep your yard right in every season.</p>
           </article>
-          <article class="why-card">
+          <article class="why-card reveal reveal--curtain">
             <h3>We stand behind our work</h3>
             <p>If it settles, shifts, or fails, we come back and make it right.</p>
           </article>
-          <article class="why-card why-card--photo">
+          <article class="why-card why-card--photo reveal reveal--zoom">
             <div class="why-card__img why-card__img--short">
               <img
                 src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/tanya-barrow-omsriVMVd_A-unsplash.jpg' ); ?>"
@@ -133,12 +137,11 @@
   <?php /* Numbers land AFTER the claims (why-us) and BEFORE the quotes:
            claims → proof → testimony, escalating trust. */ ?>
   <section class="stats">
-    <div class="container stats__grid">
-      <?php /* TODO(user): numbers animate via cookbook #8 in the JS phase */ ?>
-      <div class="stat"><span class="stat__number" data-target="120">120+</span><span class="stat__label">Projects completed</span></div>
+    <div class="container stats__grid reveal">
+      <div class="stat"><span class="stat__number" data-target="120" data-suffix="+">120+</span><span class="stat__label">Projects completed</span></div>
       <div class="stat"><span class="stat__number" data-target="12">12</span><span class="stat__label">Years in business</span></div>
-      <div class="stat"><span class="stat__number">5.0</span><span class="stat__label">Google rating</span></div>
-      <div class="stat"><span class="stat__number" data-target="98">98%</span><span class="stat__label">Repeat &amp; referral</span></div>
+      <div class="stat"><span class="stat__number" data-target="5" data-decimals="1">5.0</span><span class="stat__label">Google rating</span></div>
+      <div class="stat"><span class="stat__number" data-target="98" data-suffix="%">98%</span><span class="stat__label">Repeat &amp; referral</span></div>
     </div>
   </section>
 
