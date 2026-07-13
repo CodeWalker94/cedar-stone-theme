@@ -274,6 +274,10 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
   --btn-fill: var(--color-primary);
 }
 
+/* .btn sets display:inline-block, which overrides the [hidden] attribute, so let
+   .btn[hidden] win (higher specificity, no !important). Lets JS hide "Load more". */
+.btn[hidden] { display: none; }
+
 .btn--outline {
   background: transparent;
   color: var(--color-primary);
@@ -695,6 +699,265 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
 .visit__phone:focus-visible { color: var(--color-accent); }
 @media (max-width: 760px) {
   .visit__inner { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+}
+
+/* ===== Our Work: masonry gallery + filter + lightbox ===== */
+
+/* Hero — a quiet solid-green band (deliberately NOT a photo hero like Services),
+   so the project photos below stay the visual star. */
+.work-hero {
+  color: var(--color-bg);
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+  background-image: linear-gradient(rgba(20, 32, 26, 0.5), rgba(20, 32, 26, 0.6)),
+    url('assets/images/david-billington-oOq2RO52UPM-unsplash.jpg');
+  background-size: cover;
+  background-position: center;
+}
+.work-hero h1 {
+  color: var(--color-bg);
+  font-size: clamp(2.4rem, 5vw + 1rem, var(--text-3xl));
+  font-weight: 600;
+  margin: 0;
+}
+.work-hero__sub { color: rgba(247, 245, 240, 0.85); margin-top: var(--space-2); }
+
+/* Filter bar — a centered row of pill buttons (inside the <search> landmark). */
+.work-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+  padding-block: var(--space-8) var(--space-6);
+}
+.work-filter__btn {
+  font: inherit;
+  cursor: pointer;
+  padding: 0.5rem var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.work-filter__btn:hover { color: var(--color-primary); border-color: var(--color-primary); }
+.work-filter__btn.is-active {
+  background: var(--color-primary);
+  color: var(--color-bg);
+  border-color: var(--color-primary);
+}
+
+/* THE MASONRY GRID — CSS multi-column layout is the simplest true masonry:
+   the browser splits tiles into vertical columns and each image keeps its natural
+   height, so they pack like Unsplash. column-width lets the count flex responsively. */
+.work-grid {
+  column-width: 300px;          /* target ~300px columns; browser fits as many as will fit */
+  column-gap: var(--space-3);
+  padding-bottom: var(--space-6);
+}
+
+/* One tile = a <figure> the columns flow around.
+   In column layouts, vertical spacing between stacked items comes from margin, not gap.
+   break-inside: avoid stops an image from splitting across two columns. */
+.work-tile {
+  position: relative;
+  margin: 0 0 var(--space-3);
+  break-inside: avoid;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.work-tile__btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.work-tile__img { display: block; width: 100%; height: auto; } /* natural height = the masonry look */
+
+/* Hover overlay (the figcaption) — pinned over the bottom of the image, fades/slides in.
+   pointer-events: none so clicks pass through to the button underneath. */
+.work-tile__caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: grid;
+  gap: 2px;
+  padding: var(--space-4) var(--space-2) var(--space-2);
+  background: linear-gradient(to top, rgba(20, 32, 26, 0.85), rgba(20, 32, 26, 0));
+  color: var(--color-bg);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.work-tile:hover .work-tile__caption,
+.work-tile__btn:focus-visible + .work-tile__caption { opacity: 1; transform: translateY(0); }
+.work-tile__title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; }
+.work-tile__cat { font-size: var(--text-sm); color: var(--color-gold); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.work-more { text-align: center; padding-block: var(--space-4) var(--space-12); }
+
+/* Loading overlay for filter/load swaps: JS adds .is-loading to .work-grid-wrap.
+   The grid dims, a cream overlay + spinner covers the reflow, then it fades back. */
+.work-grid-wrap { position: relative; }
+.work-grid { transition: opacity 0.25s ease; }
+.work-grid-wrap.is-loading .work-grid { opacity: 0.12; pointer-events: none; }
+
+.work-loader {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.work-grid-wrap.is-loading .work-loader { opacity: 1; visibility: visible; }
+
+.work-loader__spinner {
+  position: absolute;
+  top: var(--space-8);
+  left: calc(50% - 21px); /* center a 42px spinner without transform (rotate needs it) */
+  width: 42px;
+  height: 42px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: work-spin 0.7s linear infinite;
+}
+@keyframes work-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .work-loader__spinner { animation-duration: 2.4s; }
+  .work-grid { transition: none; }
+}
+
+/* LIGHTBOX — the native <dialog>. ::backdrop is the dim overlay the browser gives us free. */
+.lightbox {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  /* fade + scale on open/close (allow-discrete lets the closed<->open display change animate) */
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.2s ease, transform 0.2s ease,
+    display 0.2s ease allow-discrete, overlay 0.2s ease allow-discrete;
+}
+.lightbox[open] { opacity: 1; transform: scale(1); }
+@starting-style {
+  .lightbox[open] { opacity: 0; transform: scale(0.97); }
+}
+.lightbox::backdrop {
+  background: rgba(20, 32, 26, 0.9);
+  opacity: 0;
+  transition: opacity 0.2s ease, display 0.2s ease allow-discrete, overlay 0.2s ease allow-discrete;
+}
+.lightbox[open]::backdrop { opacity: 1; }
+@starting-style {
+  .lightbox[open]::backdrop { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lightbox, .lightbox::backdrop { transition: none; }
+  .lightbox { opacity: 1; transform: none; }
+}
+
+/* No card: the image floats centered on the dimmed backdrop. */
+.lightbox__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lightbox__img {
+  display: block;
+  max-width: 90vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(20, 32, 26, 0.6);
+}
+
+/* Details in the lower-left. The scrim is a ::before so the text box stays wide (not squeezed by padding). */
+.lightbox__caption {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  max-width: min(60ch, 92vw);
+  padding: var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+  pointer-events: none; /* only the thumbnails re-enable clicks */
+  isolation: isolate;   /* stacking context so the scrim sits above the image, below the text */
+  text-shadow: 0 1px 12px rgba(20, 32, 26, 0.55);
+}
+.lightbox__caption::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: calc(-1 * var(--space-12)) calc(-1 * var(--space-16)) 0 0;
+  background: radial-gradient(120% 120% at 0% 100%, rgba(20, 32, 26, 0.8) 0%, rgba(20, 32, 26, 0.3) 46%, transparent 72%);
+  pointer-events: none;
+}
+.lightbox__text { display: grid; gap: var(--space-1); }
+.lightbox__title { color: var(--color-gold); font-size: var(--text-2xl); font-weight: 700; line-height: 1.1; }
+.lightbox__desc { color: #fff; font-size: var(--text-lg); }
+
+.lightbox__thumbs {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 84vh;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+.lightbox__thumb {
+  width: 64px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: none;
+  cursor: pointer;
+}
+.lightbox__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.lightbox__thumb.is-active { border-color: var(--color-gold); }
+
+.lightbox__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #fff;
+  background: rgba(20, 32, 26, 0.5);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.lightbox__close:hover,
+.lightbox__close:focus-visible { background: var(--color-accent); }
+
+@media (max-width: 620px) {
+  .lightbox__caption { max-width: 100%; padding: var(--space-4); }
+  .lightbox__title { font-size: var(--text-xl); }
 }
 
 /* ===== Our Work grid + hover cards ===== */
