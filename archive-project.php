@@ -57,22 +57,8 @@
 
   </div>
 
-  <?php /* LIGHTBOX: native <dialog>. Empty shell now — Stage-3 JS sets the <img> src + caption
-           then calls dialog.showModal(). The browser hands us focus-trap, Esc-to-close, and the
-           ::backdrop dim overlay for free. That's the whole reason we chose <dialog>. */ ?>
-  <dialog class="lightbox" id="work-lightbox" aria-label="Project detail">
-    <div class="lightbox__inner">
-      <button class="lightbox__close" type="button" aria-label="Close" data-close>&times;</button>
-      <img class="lightbox__img" src="" alt="">
-      <div class="lightbox__caption">
-        <div class="lightbox__text">
-          <h2 class="lightbox__title"></h2>
-          <p class="lightbox__desc"></p>
-        </div>
-      </div>
-      <div class="lightbox__thumbs" hidden></div>
-    </div>
-  </dialog>
+  <?php /* The lightbox modal is shared (also used by the homepage preview), so it's loaded
+           once from footer.php via template-parts/lightbox.php. */ ?>
 
 </main>
 

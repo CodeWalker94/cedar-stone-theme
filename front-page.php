@@ -47,15 +47,24 @@
         <h2>Our work</h2>
         <a class="section__link" href="/our-work/">View full portfolio <span aria-hidden="true">&rarr;</span></a>
       </div>
-      <div class="grid-work reveal">
+      <?php /* 6 random projects from the CPT. Uses the SAME tile partial as Our Work, so each
+               card carries the lightbox data and opens the shared modal (from footer.php).
+               This is a SECONDARY query (not the page's main Loop), so we use its own
+               have_posts()/the_post() and reset the global post afterward. */ ?>
+      <div class="home-work">
         <?php
-        /* TODO(user): replace with a WP_Query loop over the 'project' CPT (6 most recent). */
-        get_template_part( 'template-parts/card-project', null, array( 'title' => 'Backyard Paver Patio', 'img' => 'todfrank-backyard-1715876_1920.jpg' ) );
-        get_template_part( 'template-parts/card-project', null, array( 'title' => 'Front Yard Redesign', 'img' => 'erikawittlieb-house-2417321_1920.jpg' ) );
-        get_template_part( 'template-parts/card-project', null, array( 'title' => 'Stone Retaining Wall', 'img' => 'qy-liu-184tM0HpxPA-unsplash.jpg' ) );
-        get_template_part( 'template-parts/card-project', null, array( 'title' => 'Garden Path & Beds', 'img' => 'aniston-grace-L3hyEbDk194-unsplash.jpg' ) );
-        get_template_part( 'template-parts/card-project', null, array( 'title' => 'Outdoor Living Space', 'img' => '1139623-backyard-2549830_1920.jpg' ) );
-        get_template_part( 'template-parts/card-project', null, array( 'title' => 'Seasonal Cleanup', 'img' => 'paul-arky-BoVg3wUOJ_g-unsplash.jpg' ) );
+        $home_projects = new WP_Query( array(
+          'post_type'      => 'project',
+          'posts_per_page' => 6,
+          'orderby'        => 'rand',
+        ) );
+        if ( $home_projects->have_posts() ) {
+          while ( $home_projects->have_posts() ) {
+            $home_projects->the_post();
+            get_template_part( 'template-parts/tile-project' );
+          }
+          wp_reset_postdata();
+        }
         ?>
       </div>
     </div>
