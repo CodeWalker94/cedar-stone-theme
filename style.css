@@ -114,17 +114,25 @@ button {
 /* Each li is a clipping window; its link waits below the window edge */
 .site-header__nav li { overflow: hidden; }
 
-.site-header__nav a {
+/* Scoped to `ul a` on purpose: a bare `.site-header__nav a` also matches the
+   panel CTA's phone + button, and at (0,1,1) it outranks .btn--accent (0,1,0),
+   silently overriding the button's own text color. Keep nav links to the list. */
+.site-header__nav ul a {
   display: block;
-  color: var(--color-primary);
+  color: var(--color-bg);
   font-family: var(--font-display);
   font-size: var(--text-xl);
   text-decoration: none;
   transform: translateY(120%);
-  transition: transform 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  transition:
+    transform 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86),
+    color 0.15s ease;
 }
 
-.site-header__nav.is-open a { transform: translateY(0); }
+.site-header__nav ul a:hover,
+.site-header__nav ul a:focus-visible { color: var(--color-accent); }
+
+.site-header__nav.is-open ul a { transform: translateY(0); }
 
 /* The stagger: each item starts its slide a beat after the previous one.
    Scoped to .is-open so items exit together but enter one by one. */
@@ -146,7 +154,7 @@ button {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-.site-header__nav-cta .site-header__phone { color: var(--color-primary); }
+.site-header__nav-cta .site-header__phone { color: var(--color-bg); }
 
 .site-header__nav.is-open .site-header__nav-cta {
   opacity: 1;
@@ -154,8 +162,11 @@ button {
   transition-delay: 0.45s; /* lands just after the last nav link */
 }
 
-/* Mobile header shows logo + hamburger only; phone + CTA live in the panel */
-.site-header__actions > .site-header__phone,
+/* Compact header: the call icon stays visible at every width (tap-to-call is worth
+   keeping on a local service site), but its number label hides until there's room —
+   only the icon shows below 1100px, the full "(555)…" text returns at 1100px+.
+   The CTA button rejoins once there's room (600px+). */
+.site-header__actions > .site-header__phone span { display: none; }
 .site-header__actions > .btn { display: none; }
 
 body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
@@ -188,13 +199,19 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
 .nav-toggle.is-open span:nth-child(2) { opacity: 0; }
 .nav-toggle.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Nav breakpoint is content-based: the full row needs ~1100px to breathe */
-@media (min-width: 1100px) {
+/* Room for the call icon + CTA button next to the hamburger, nav links are
+   still collapsed here, only 5 links + logo need the full 1024px below. */
+@media (min-width: 600px) {
+  .site-header__actions > .btn { display: inline-block; }
+}
+
+/* Nav breakpoint is content-based: the full row needs ~1000-1050px to breathe.
+   1024px is the standard tablet-landscape/small-laptop cutoff, close to that
+   floor without cutting it so tight that the row wraps. */
+
+@media (min-width: 1024px) {
   .nav-toggle { display: none; }
   .site-header__nav-cta { display: none; }
-
-  .site-header__actions > .site-header__phone { display: flex; }
-  .site-header__actions > .btn { display: inline-block; }
 
   .site-header__nav {
     position: static;
@@ -207,7 +224,7 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
 
   .site-header__nav ul { flex-direction: row; }
 
-  .site-header__nav a {
+  .site-header__nav ul a {
     font-family: var(--font-body);
     font-size: var(--text-base);
     font-weight: 500;
@@ -215,8 +232,15 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
     transform: none;
     transition: color 0.15s ease;
   }
-  .site-header__nav a:hover,
-  .site-header__nav a:focus-visible { color: var(--color-accent); }
+  .site-header__nav ul a:hover,
+  .site-header__nav ul a:focus-visible { color: var(--color-accent); }
+}
+
+/* The number label reveals on its own breakpoint, later than the 1024px nav switch:
+   between 1024 and 1100 the inline row is tight, so the phone stays icon-only there
+   and the "(555)…" text only joins once there's comfortable room. */
+@media (min-width: 1100px) {
+  .site-header__actions > .site-header__phone span { display: inline; }
 }
 
 .site-header__actions {
@@ -1412,7 +1436,7 @@ body.nav-open { overflow: hidden; } /* no page scroll behind the open panel */
 
 @media (prefers-reduced-motion: reduce) {
   .site-header__nav,
-  .site-header__nav a,
+  .site-header__nav ul a,
   .nav-toggle span,
   .gallery-card__overlay,
   .gallery-card__title { transition: none; }
